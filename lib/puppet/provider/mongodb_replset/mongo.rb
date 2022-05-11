@@ -2,6 +2,7 @@
 # Author: Francois Charlier <francois.charlier@enovance.com>
 #
 
+require 'socket'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'mongodb'))
 Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mongodb) do
   desc 'Manage hosts members for a replicaset.'
@@ -115,8 +116,20 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
     self.class.auth_enabled
   end
 
+  def ssl_is_enabled
+    self.class.ssl_is_enabled
+  end
+
+  def tls_is_enabled
+    self.class.tls_is_enabled
+  end
+
   def initialize_host
-    @resource[:initialize_host]
+    if (ssl_is_enabled || tls_is_enabled) && @resource[:initialize_host] == '127.0.0.1'
+      Socket.gethostbyname(Socket.gethostname).first
+    else
+      @resource[:initialize_host]
+    end
   end
 
   def master_host(members)
