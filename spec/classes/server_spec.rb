@@ -328,6 +328,29 @@ describe 'mongodb::server' do
         end
       end
 
+      describe 'with tls' do
+        context 'enabled' do
+          let :params do
+            {
+              tls: true,
+              tls_mode: 'requireTLS'
+            }
+          end
+
+          it { is_expected.to contain_file(config_file).with_content(%r{^net\.tls\.mode: requireTLS$}) }
+        end
+
+        context 'disabled' do
+          let :params do
+            {
+              tls: false
+            }
+          end
+
+          it { is_expected.not_to contain_file(config_file).with_content(%r{net\.tls\.mode}) }
+        end
+      end
+
       context 'setting nohttpinterface' do
         it "isn't set when undef" do
           is_expected.not_to contain_file(config_file).with_content(%r{net\.http\.enabled})
