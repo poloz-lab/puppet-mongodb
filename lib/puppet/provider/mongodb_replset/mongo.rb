@@ -120,8 +120,12 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
     self.class.ssl_is_enabled
   end
 
+  def tls_is_enabled
+    self.class.tls_is_enabled
+  end
+
   def initialize_host
-    if ssl_is_enabled && @resource[:initialize_host] == '127.0.0.1'
+    if (ssl_is_enabled || tls_is_enabled) && @resource[:initialize_host] == '127.0.0.1'
       Socket.gethostbyname(Socket.gethostname).first
     else
       @resource[:initialize_host]
